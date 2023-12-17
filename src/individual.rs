@@ -1,6 +1,6 @@
 use crate::{
     constants::{
-        Location, BETA, MAX_DESIRED_VELOCITY, MAX_PARTICLE_RADIUS, MIN_PARTICLE_RADIUS,
+        distance, Location, BETA, MAX_DESIRED_VELOCITY, MAX_PARTICLE_RADIUS, MIN_PARTICLE_RADIUS,
         RADIUS_INCREMENT, SIMULATION_LENGHT, TIME_STEP,
     },
     target::{self, Target},
@@ -8,7 +8,7 @@ use crate::{
 
 pub enum InfectionState {
     Susceptible,
-    Infected(u8),
+    Infected(usize),
     Recovered,
 }
 
@@ -27,11 +27,11 @@ pub struct Individual {
 }
 
 impl Individual {
-    pub fn new(id: usize, x: f64, y: f64, state: InfectionState, residence: Location) -> Self {
+    pub fn new(id: usize, state: InfectionState, residence: Location) -> Self {
         Self {
             id,
-            x,
-            y,
+            x: residence.0,
+            y: residence.1,
             vx: 0.0,
             vy: 0.0,
             radius: MIN_PARTICLE_RADIUS,
@@ -42,11 +42,17 @@ impl Individual {
         }
     }
 
-    fn distance(&self, other: Location) -> f64 {
-        let dx = self.x - other.0;
-        let dy = self.y - other.1;
+    // Infection Functions
 
-        (dx.powi(2) + dy.powi(2)).sqrt()
+    pub fn infect(&mut self, infected_period: usize) {
+        self.state = InfectionState::Infected(infected_period)
+    }
+
+    // CPM Functions
+
+    fn distance(&self, other: Location) -> f64 {
+        // TODO: Is this even useful?
+        distance(self.get_coordinates(), other)
     }
 
     pub fn is_colliding(&self, other: &Individual) -> bool {
