@@ -1,3 +1,4 @@
+use anyhow::{Ok, Result};
 use clap::Parser;
 
 use crate::args::Cli;
@@ -8,8 +9,10 @@ mod individual;
 mod simulation;
 mod target;
 
-fn main() {
+fn main() -> Result<()> {
     let args = Cli::parse();
 
     println!("Hello, world!");
+
+    Ok(())
 }

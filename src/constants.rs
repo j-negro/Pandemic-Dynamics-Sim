@@ -13,7 +13,7 @@ pub type Location = (f64, f64);
 
 pub const TARGET_RADIUS: f64 = 0.3;
 
-pub const fn distance(this: Location, other: Location) -> f64 {
+pub fn distance(this: Location, other: Location) -> f64 {
     let dx = this.0 - other.0;
     let dy = this.1 - other.1;
 
