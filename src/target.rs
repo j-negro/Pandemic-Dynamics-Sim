@@ -25,12 +25,13 @@ impl Target {
     }
 
     pub fn in_target(&self, individual: &Individual) -> bool {
-        let dx = self.location.0 - individual.x;
-        let dy = self.location.1 - individual.y;
+        let coords = individual.get_coordinates();
+        let dx = self.location.0 - coords.0;
+        let dy = self.location.1 - coords.1;
 
         let distance = (dx.powi(2) + dy.powi(2)).sqrt();
 
-        distance <= self.radius + individual.radius
+        distance <= self.radius + individual.get_radius()
     }
 }
 
