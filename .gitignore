@@ -18,5 +18,5 @@ Cargo.lock
 /target
 
 # Analysis
-.txt
-.xyz
+*.txt
+*.xyz
