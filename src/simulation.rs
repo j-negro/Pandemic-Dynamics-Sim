@@ -47,8 +47,9 @@ impl Simulation {
 
         // Generate all individuals
         let mut individuals = (0..individual_count)
-            .map(|idx| Individual::new(idx, InfectionState::Susceptible, residences[0]))
+            .map(|idx| Individual::new(idx, residences[idx]))
             .collect::<Vec<_>>();
+
         // Infect one individual
         individuals[0].infect(infectious_period);
 

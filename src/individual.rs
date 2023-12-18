@@ -27,7 +27,7 @@ pub struct Individual {
 }
 
 impl Individual {
-    pub fn new(id: usize, state: InfectionState, residence: Location) -> Self {
+    pub fn new(id: usize, residence: Location) -> Self {
         Self {
             id,
             x: residence.0,
@@ -35,7 +35,7 @@ impl Individual {
             vx: 0.0,
             vy: 0.0,
             radius: MIN_PARTICLE_RADIUS,
-            state,
+            state: InfectionState::Susceptible,
             residence,
             targets: target::generate_targets(),
             target_idx: 0,
