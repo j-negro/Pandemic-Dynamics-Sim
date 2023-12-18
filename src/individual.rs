@@ -20,7 +20,7 @@ pub struct Individual {
     vy: f64,
     radius: f64,
 
-    state: InfectionState,
+    pub state: InfectionState,
     residence: Location,
     targets: [Target; 3],
     target_idx: usize,

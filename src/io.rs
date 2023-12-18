@@ -3,7 +3,9 @@ use std::{
     io::{BufWriter, Write},
 };
 
-use crate::{constants::SIMULATION_LENGHT, individual::Individual, Result};
+use crate::{
+    constants::SIMULATION_LENGHT, individual::Individual, simulation::InfectionStatus, Result,
+};
 
 const CORNERS: [(f64, f64); 4] = [
     (0.0, 0.0),
@@ -46,13 +48,22 @@ pub fn output_simulation(file: &File, particles: &Vec<Individual>) -> Result<()>
     Ok(())
 }
 
-pub fn output_times(path: &str, times: &Vec<(usize, f64)>) -> Result<()> {
+pub fn output_status(path: &str, status: &Vec<(usize, InfectionStatus)>) -> Result<()> {
     let file = File::create(path)?;
 
     let mut writer = BufWriter::new(file);
 
-    for (time, count) in times {
-        writeln!(writer, "{time} {count}")?;
+    for (
+        day,
+        InfectionStatus {
+            susceptible,
+            infected,
+            recovered,
+            dead,
+        },
+    ) in status
+    {
+        writeln!(writer, "{day} {susceptible} {infected} {recovered} {dead}")?;
     }
 
     Ok(())

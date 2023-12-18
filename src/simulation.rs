@@ -7,6 +7,7 @@ use crate::{
 
 pub struct Simulation {
     pub individuals: Vec<Individual>,
+    pub individual_count: usize,
     pub date: usize,
     pub transmission_rate: f64,
     pub infectious_period: usize,
@@ -15,16 +16,16 @@ pub struct Simulation {
 
 impl Simulation {
     pub fn new(
-        particle_count: usize,
+        individual_count: usize,
         transmission_rate: f64,
         infectious_period: usize,
         mortality_rate: f64,
     ) -> Self {
-        let mut residences = Vec::with_capacity(particle_count);
+        let mut residences = Vec::with_capacity(individual_count);
         let mut rng = rand::thread_rng();
 
         // Generate individual residences without overlapping
-        for _ in 0..particle_count {
+        for _ in 0..individual_count {
             loop {
                 let x =
                     rng.gen_range(MIN_PARTICLE_RADIUS..=(SIMULATION_LENGHT - MIN_PARTICLE_RADIUS));
@@ -45,7 +46,7 @@ impl Simulation {
         }
 
         // Generate all individuals
-        let mut individuals = (0..particle_count)
+        let mut individuals = (0..individual_count)
             .map(|idx| Individual::new(idx, InfectionState::Susceptible, residences[0]))
             .collect::<Vec<_>>();
         // Infect one individual
@@ -53,10 +54,37 @@ impl Simulation {
 
         Self {
             individuals,
+            individual_count,
             date: 0,
             transmission_rate,
             infectious_period,
             mortality_rate,
         }
     }
+
+    pub fn infection_status(&self) -> InfectionStatus {
+        let mut status =
+            self.individuals
+                .iter()
+                .fold(InfectionStatus::default(), |mut status, i| {
+                    match i.state {
+                        InfectionState::Susceptible => status.susceptible += 1,
+                        InfectionState::Infected(_) => status.infected += 1,
+                        InfectionState::Recovered => status.recovered += 1,
+                    }
+                    status
+                });
+
+        status.dead = self.individual_count - self.individuals.len();
+
+        status
+    }
+}
+
+#[derive(Debug, Default)]
+pub struct InfectionStatus {
+    pub susceptible: usize,
+    pub infected: usize,
+    pub recovered: usize,
+    pub dead: usize,
 }

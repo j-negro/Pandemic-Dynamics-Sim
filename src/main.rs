@@ -27,7 +27,7 @@ fn main() -> Result<()> {
     let file = File::create(args.xyz_output_path)?;
     io::output_simulation(&file, &simulation.individuals)?;
 
-    // let mut removed_times = Vec::new();
+    let mut status = Vec::new();
 
     // let mut i = 0;
     // loop {
@@ -48,7 +48,7 @@ fn main() -> Result<()> {
     //     i += 1;
     // }
 
-    // io::output_times(&args.data_output_path, &removed_times)?;
+    io::output_status(&args.data_output_path, &status)?;
 
     Ok(())
 }
