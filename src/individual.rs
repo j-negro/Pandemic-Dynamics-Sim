@@ -76,6 +76,7 @@ impl Individual {
 
     pub fn reset_to_residence(&mut self) {
         self.set_coordinates(self.residence);
+        self.target_idx = 0;
     }
 
     pub fn recreate_random_target(&mut self) {
