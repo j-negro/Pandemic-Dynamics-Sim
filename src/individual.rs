@@ -48,6 +48,10 @@ impl Individual {
         self.state = InfectionState::Infected(infected_period)
     }
 
+    pub fn reset_to_residence(&mut self) {
+        self.set_coordinates(self.residence);
+    }
+
     // CPM Functions
 
     fn distance(&self, other: Location) -> f64 {
@@ -128,6 +132,11 @@ impl Individual {
 
     pub fn get_coordinates(&self) -> Location {
         (self.x, self.y)
+    }
+
+    pub fn set_coordinates(&mut self, coords: Location) {
+        self.x = coords.0;
+        self.y = coords.1;
     }
 
     pub fn get_radius(&self) -> f64 {

@@ -7,13 +7,9 @@ use crate::{
 
 pub struct Simulation {
     pub individuals: Vec<Individual>,
-    time_in_date: f64,
-    date: usize,
-
+    pub date: usize,
     pub transmission_rate: f64,
-
     pub infectious_period: usize,
-
     pub mortality_rate: f64,
 }
 
@@ -57,7 +53,6 @@ impl Simulation {
 
         Self {
             individuals,
-            time_in_date: 0.0,
             date: 0,
             transmission_rate,
             infectious_period,
