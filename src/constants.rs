@@ -1,4 +1,4 @@
-pub const SIMULATION_LENGHT: f64 = 20.0;
+pub const SIMULATION_LENGHT: f64 = 200.0;
 
 pub const MIN_PARTICLE_RADIUS: f64 = 0.1;
 pub const MAX_PARTICLE_RADIUS: f64 = 0.37;
