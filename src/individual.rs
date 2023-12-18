@@ -1,3 +1,5 @@
+use rand::{thread_rng, Rng};
+
 use crate::{
     constants::{
         distance, Location, BETA, MAX_DESIRED_VELOCITY, MAX_PARTICLE_RADIUS, MIN_PARTICLE_RADIUS,
@@ -50,6 +52,28 @@ impl Individual {
         self.state = InfectionState::Infected(infected_period);
     }
 
+    pub fn is_infected(&self) -> bool {
+        if let InfectionState::Infected(_) = self.state {
+            return true;
+        }
+        false
+    }
+
+    pub fn update_infected(&mut self, infections: usize, transmission_rate: f64) {
+        if self.is_infected() || self.to_infect {
+            return;
+        }
+
+        let mut rng = thread_rng();
+        (0..infections).any(|_| {
+            if rng.gen_range(0.0..1.0) > transmission_rate {
+                self.to_infect = true;
+                return true;
+            }
+            false
+        });
+    }
+
     pub fn reset_to_residence(&mut self) {
         self.set_coordinates(self.residence);
     }
@@ -67,13 +91,8 @@ impl Individual {
 
     // CPM Functions
 
-    fn distance(&self, other: Location) -> f64 {
-        // TODO: Is this even useful?
-        distance(self.get_coordinates(), other)
-    }
-
     pub fn is_colliding(&self, other: &Individual) -> bool {
-        self.distance(other.get_coordinates()) <= self.radius + other.radius
+        distance(self.get_coordinates(), other.get_coordinates()) <= self.radius + other.radius
     }
 
     pub fn check_wall_collisions(&self) -> Vec<Location> {
