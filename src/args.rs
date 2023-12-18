@@ -22,13 +22,17 @@ pub struct Cli {
 
     #[arg(short, long, default_value_t = 0.2, value_parser = validate_rate)]
     pub mortality_rate: f64,
+
+    #[arg(short, long, default_value_t = 200)]
+    pub particle_count: usize,
 }
 
-
 fn validate_rate(rate: &str) -> Result<f64, String> {
-    let rate = rate.parse::<f64>().map_err(|_| "Rate specified is not a number.")?;
+    let rate = rate
+        .parse::<f64>()
+        .map_err(|_| "Rate specified is not a number.")?;
     if rate < 0.0 || rate > 1.0 {
-        return Err("Please specify a number between 0 and 1.".to_owned())
+        return Err("Please specify a number between 0 and 1.".to_owned());
     }
     Ok(rate)
 }
