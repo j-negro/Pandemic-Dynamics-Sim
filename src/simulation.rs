@@ -2,6 +2,7 @@ use rand::Rng;
 
 use crate::{
     constants::{distance, MIN_PARTICLE_RADIUS, SIMULATION_LENGHT},
+    day::Day,
     individual::{Individual, InfectionState},
 };
 
@@ -63,7 +64,17 @@ impl Simulation {
         }
     }
 
-    pub fn infection_status(&self) -> InfectionStatus {
+    pub fn next_day(&mut self) -> Option<Day> {
+        todo!()
+    }
+
+    pub fn update_infection(&mut self) -> InfectionStatus {
+        todo!("Recalculate which particle is infected");
+
+        self.infection_status()
+    }
+
+    fn infection_status(&self) -> InfectionStatus {
         let mut status =
             self.individuals
                 .iter()

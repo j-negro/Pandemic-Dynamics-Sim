@@ -14,7 +14,7 @@ const CORNERS: [(f64, f64); 4] = [
     (SIMULATION_LENGHT, SIMULATION_LENGHT),
 ];
 
-pub fn output_simulation(file: &File, particles: &Vec<Individual>) -> Result<()> {
+pub fn output_simulation(file: &File, particles: &Vec<&mut Individual>) -> Result<()> {
     let mut writer = BufWriter::new(file);
 
     let particle_count = particles.len() + CORNERS.len();

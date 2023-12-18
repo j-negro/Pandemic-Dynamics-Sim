@@ -23,4 +23,8 @@ impl<'a> Day<'a> {
             mortality_rate,
         }
     }
+
+    pub fn run(&mut self, steps: usize) -> bool {
+        todo!()
+    }
 }

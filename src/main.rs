@@ -25,28 +25,24 @@ fn main() -> Result<()> {
     );
 
     let file = File::create(args.xyz_output_path)?;
-    io::output_simulation(&file, &simulation.individuals)?;
 
     let mut status = Vec::new();
 
-    // let mut i = 0;
-    // loop {
-    //     removed_times.append(&mut simulation.run(args.output_step_count));
+    while let Some(mut day) = simulation.next_day() {
+        loop {
+            io::output_simulation(&file, &day.individuals)?;
 
-    //     io::output_simulation(&file, &simulation.particles, &simulation.target)?;
+            let finished = day.run(args.output_step_count);
 
-    //     if simulation.particles.is_empty() {
-    //         break;
-    //     }
+            if finished {
+                break;
+            }
+        }
 
-    //     if let Some(max) = args.max_steps {
-    //         if i > max {
-    //             break;
-    //         }
-    //     }
+        let day_status = simulation.update_infection();
 
-    //     i += 1;
-    // }
+        status.push((simulation.date, day_status))
+    }
 
     io::output_status(&args.data_output_path, &status)?;
 
