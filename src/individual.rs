@@ -19,8 +19,9 @@ pub struct Individual {
     vx: f64,
     vy: f64,
     radius: f64,
-
+    // Infection Information
     pub state: InfectionState,
+    pub to_infect: bool,
     residence: Location,
     targets: [Target; 3],
     target_idx: usize,
@@ -36,6 +37,7 @@ impl Individual {
             vy: 0.0,
             radius: MIN_PARTICLE_RADIUS,
             state: InfectionState::Susceptible,
+            to_infect: false,
             residence,
             targets: target::generate_targets(),
             target_idx: 0,

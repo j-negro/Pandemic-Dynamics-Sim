@@ -69,7 +69,32 @@ impl Simulation {
     }
 
     pub fn update_infection(&mut self) -> InfectionStatus {
-        todo!("Recalculate which particle is infected");
+        let mut rng = rand::thread_rng();
+
+        self.individuals.retain_mut(|i| {
+            match i.state {
+                InfectionState::Susceptible => {
+                    if i.to_infect {
+                        i.infect(self.infectious_period)
+                    }
+                }
+                InfectionState::Infected(0) => {
+                    let p = rng.gen_range(0f64..1f64);
+
+                    if p < self.mortality_rate {
+                        i.state = InfectionState::Recovered;
+                    } else {
+                        return false;
+                    }
+                }
+                InfectionState::Infected(n) => i.state = InfectionState::Infected(n - 1),
+                InfectionState::Recovered => (),
+            };
+
+            i.reset_to_residence();
+
+            true
+        });
 
         self.infection_status()
     }
