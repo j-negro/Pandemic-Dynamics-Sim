@@ -8,6 +8,7 @@ use crate::args::Cli;
 
 mod args;
 mod constants;
+mod day;
 mod individual;
 mod io;
 mod simulation;
