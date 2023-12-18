@@ -102,6 +102,8 @@ impl Simulation {
 
             i.reset_to_residence();
 
+            i.recreate_random_target();
+
             true
         });
 

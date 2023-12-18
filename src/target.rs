@@ -35,10 +35,15 @@ impl Target {
     }
 }
 
-pub fn generate_targets() -> [Target; 3] {
-    let targets = (0..3)
+pub fn generate_targets(last: Location) -> [Target; 4] {
+    let mut targets = (0..3)
         .map(|_| Target::new(TARGET_RADIUS))
         .collect::<Vec<_>>();
+
+    targets.push(Target {
+        location: last,
+        radius: TARGET_RADIUS,
+    });
 
     targets.try_into().unwrap()
 }

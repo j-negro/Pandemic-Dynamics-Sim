@@ -1,7 +1,7 @@
 use crate::{
     constants::{
         distance, Location, BETA, MAX_DESIRED_VELOCITY, MAX_PARTICLE_RADIUS, MIN_PARTICLE_RADIUS,
-        RADIUS_INCREMENT, SIMULATION_LENGHT, TIME_STEP,
+        RADIUS_INCREMENT, SIMULATION_LENGHT, TARGET_RADIUS, TIME_STEP,
     },
     target::{self, Target},
 };
@@ -23,7 +23,7 @@ pub struct Individual {
     pub state: InfectionState,
     pub to_infect: bool,
     residence: Location,
-    targets: [Target; 3],
+    targets: [Target; 4],
     target_idx: usize,
 }
 
@@ -39,7 +39,7 @@ impl Individual {
             state: InfectionState::Susceptible,
             to_infect: false,
             residence,
-            targets: target::generate_targets(),
+            targets: target::generate_targets(residence),
             target_idx: 0,
         }
     }
@@ -52,6 +52,17 @@ impl Individual {
 
     pub fn reset_to_residence(&mut self) {
         self.set_coordinates(self.residence);
+    }
+
+    pub fn recreate_random_target(&mut self) {
+        self.targets[2] = Target::new(TARGET_RADIUS)
+    }
+
+    pub fn update_target(&mut self) -> bool {
+        if self.targets[self.target_idx].in_target(&self) {
+            self.target_idx += 1;
+        }
+        self.target_idx == self.targets.len()
     }
 
     // CPM Functions
