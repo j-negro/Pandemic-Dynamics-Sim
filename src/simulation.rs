@@ -13,6 +13,7 @@ pub struct Simulation {
     pub transmission_rate: f64,
     pub infectious_period: usize,
     pub mortality_rate: f64,
+    pub infection_status: InfectionStatus,
 }
 
 impl Simulation {
@@ -54,6 +55,8 @@ impl Simulation {
         // Infect one individual
         individuals[0].infect(infectious_period);
 
+        let infection_status = InfectionStatus::new(&individuals, individual_count);
+
         Self {
             individuals,
             individual_count,
@@ -61,14 +64,20 @@ impl Simulation {
             transmission_rate,
             infectious_period,
             mortality_rate,
+            infection_status,
         }
     }
 
     pub fn next_day(&mut self) -> Option<Day> {
-        todo!()
+        (self.infection_status.infected > 0).then(|| {
+            Day::new(
+                self.individuals.iter_mut().collect(),
+                self.transmission_rate,
+            )
+        })
     }
 
-    pub fn update_infection(&mut self) -> InfectionStatus {
+    pub fn update_infection(&mut self) {
         let mut rng = rand::thread_rng();
 
         self.individuals.retain_mut(|i| {
@@ -96,32 +105,33 @@ impl Simulation {
             true
         });
 
-        self.infection_status()
-    }
-
-    fn infection_status(&self) -> InfectionStatus {
-        let mut status =
-            self.individuals
-                .iter()
-                .fold(InfectionStatus::default(), |mut status, i| {
-                    match i.state {
-                        InfectionState::Susceptible => status.susceptible += 1,
-                        InfectionState::Infected(_) => status.infected += 1,
-                        InfectionState::Recovered => status.recovered += 1,
-                    }
-                    status
-                });
-
-        status.dead = self.individual_count - self.individuals.len();
-
-        status
+        self.infection_status = InfectionStatus::new(&self.individuals, self.individual_count);
     }
 }
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone, Copy)]
 pub struct InfectionStatus {
     pub susceptible: usize,
     pub infected: usize,
     pub recovered: usize,
     pub dead: usize,
+}
+
+impl InfectionStatus {
+    pub fn new(individuals: &[Individual], initial_count: usize) -> Self {
+        let mut status = individuals
+            .iter()
+            .fold(InfectionStatus::default(), |mut status, i| {
+                match i.state {
+                    InfectionState::Susceptible => status.susceptible += 1,
+                    InfectionState::Infected(_) => status.infected += 1,
+                    InfectionState::Recovered => status.recovered += 1,
+                }
+                status
+            });
+
+        status.dead = initial_count - individuals.len();
+
+        status
+    }
 }

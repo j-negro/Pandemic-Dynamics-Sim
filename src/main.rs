@@ -39,9 +39,9 @@ fn main() -> Result<()> {
             }
         }
 
-        let day_status = simulation.update_infection();
+        simulation.update_infection();
 
-        status.push((simulation.date, day_status))
+        status.push((simulation.date, simulation.infection_status));
     }
 
     io::output_status(&args.data_output_path, &status)?;

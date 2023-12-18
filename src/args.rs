@@ -31,7 +31,8 @@ fn validate_rate(rate: &str) -> Result<f64, String> {
     let rate = rate
         .parse::<f64>()
         .map_err(|_| "Rate specified is not a number.")?;
-    if rate < 0.0 || rate > 1.0 {
+
+    if !(0.0..=1.0).contains(&rate) {
         return Err("Please specify a number between 0 and 1.".to_owned());
     }
     Ok(rate)
