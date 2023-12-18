@@ -70,6 +70,7 @@ impl Simulation {
 
     pub fn next_day(&mut self) -> Option<Day> {
         (self.infection_status.infected > 0).then(|| {
+            self.date += 1;
             Day::new(
                 self.individuals.iter_mut().collect(),
                 self.transmission_rate,

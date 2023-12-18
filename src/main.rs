@@ -27,6 +27,7 @@ fn main() -> Result<()> {
     let file = File::create(args.xyz_output_path)?;
 
     let mut status = Vec::new();
+    status.push((simulation.date, simulation.infection_status));
 
     while let Some(mut day) = simulation.next_day() {
         loop {
