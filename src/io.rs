@@ -4,7 +4,10 @@ use std::{
 };
 
 use crate::{
-    constants::SIMULATION_LENGHT, individual::Individual, simulation::InfectionStatus, Result,
+    constants::SIMULATION_LENGHT,
+    individual::{Individual, InfectionState},
+    simulation::InfectionStatus,
+    Result,
 };
 
 const CORNERS: [(f64, f64); 4] = [
@@ -29,14 +32,23 @@ pub fn output_simulation(file: &File, particles: &Vec<&mut Individual>) -> Resul
         let coordinates = particle.get_coordinates();
         let velocities = particle.get_velocities();
 
+        let color = match particle.state {
+            InfectionState::Susceptible => (0.0, 0.0, 1.0),
+            InfectionState::Infected(n) => (n as f64 * 0.14, 1.0 - n as f64 * 0.14, 0.0),
+            InfectionState::Recovered => (0.0, 1.0, 0.0),
+        };
+
         writeln!(
             writer,
-            "{:.12} {:.12} {:.12} {:.12} {:.4} 1 1 1",
+            "{:.12} {:.12} {:.12} {:.12} {:.4} {} {} {}",
             coordinates.0,
             coordinates.1,
             velocities.0,
             velocities.1,
             particle.get_radius(),
+            color.0,
+            color.1,
+            color.2
         )?;
     }
 
