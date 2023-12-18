@@ -84,7 +84,7 @@ impl Simulation {
             match i.state {
                 InfectionState::Susceptible => {
                     if i.to_infect {
-                        i.infect(self.infectious_period)
+                        i.infect(self.infectious_period);
                     }
                 }
                 InfectionState::Infected(0) => {

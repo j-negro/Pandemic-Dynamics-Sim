@@ -55,11 +55,11 @@ impl Individual {
     }
 
     pub fn recreate_random_target(&mut self) {
-        self.targets[2] = Target::new(TARGET_RADIUS)
+        self.targets[2] = Target::new(TARGET_RADIUS);
     }
 
     pub fn update_target(&mut self) -> bool {
-        if self.targets[self.target_idx].in_target(&self) {
+        if self.targets[self.target_idx].in_target(self) {
             self.target_idx += 1;
         }
         self.target_idx == self.targets.len()

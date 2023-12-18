@@ -29,7 +29,7 @@ impl<'a> Day<'a> {
             // NOTE: Calculate particle collisions
             for i in 0..self.individuals.len() {
                 for j in i + 1..self.individuals.len() {
-                    if self.individuals[i].is_colliding(&self.individuals[j]) {
+                    if self.individuals[i].is_colliding(self.individuals[j]) {
                         let particle_coords = self.individuals[i].get_coordinates();
                         let colliding_coords = self.individuals[j].get_coordinates();
 
@@ -56,7 +56,7 @@ impl<'a> Day<'a> {
                 let reached_home = individual.update_target();
 
                 if reached_home {
-                    to_remove.push(individual.id)
+                    to_remove.push(individual.id);
                 }
             }
 
