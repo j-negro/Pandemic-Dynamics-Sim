@@ -23,7 +23,7 @@ pub struct Individual {
     radius: f64,
     // Infection Information
     pub state: InfectionState,
-    pub to_infect: bool,
+    pub to_infect: usize,
     residence: Location,
     targets: [Target; 4],
     target_idx: usize,
@@ -39,7 +39,7 @@ impl Individual {
             vy: 0.0,
             radius: MIN_PARTICLE_RADIUS,
             state: InfectionState::Susceptible,
-            to_infect: false,
+            to_infect: 0,
             residence,
             targets: target::generate_targets(residence),
             target_idx: 0,
@@ -57,21 +57,6 @@ impl Individual {
             return true;
         }
         false
-    }
-
-    pub fn update_infected(&mut self, infections: usize, transmission_rate: f64) {
-        if self.is_infected() || self.to_infect {
-            return;
-        }
-
-        let mut rng = thread_rng();
-        (0..infections).any(|_| {
-            if rng.gen_range(0.0..1.0) > transmission_rate {
-                self.to_infect = true;
-                return true;
-            }
-            false
-        });
     }
 
     pub fn reset_to_residence(&mut self) {

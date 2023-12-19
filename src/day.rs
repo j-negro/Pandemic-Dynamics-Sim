@@ -20,7 +20,6 @@ impl<'a> Day<'a> {
             self.time += TIME_STEP;
 
             let mut collisions = Vec::with_capacity(self.individuals.len());
-            let mut infections = vec![0; self.individuals.len()];
 
             // NOTE: Calculate wall collisions
             for individual in &self.individuals {
@@ -37,12 +36,12 @@ impl<'a> Day<'a> {
                         collisions[i].push(colliding_coords);
                         collisions[j].push(particle_coords);
 
-                        if self.individuals[j].is_infected() {
-                            infections[i] += 1;
+                        if self.individuals[j].is_infected() && !self.individuals[i].is_infected() {
+                            self.individuals[i].to_infect += 1;
                         }
 
-                        if self.individuals[i].is_infected() {
-                            infections[j] += 1;
+                        if self.individuals[i].is_infected() && !self.individuals[j].is_infected() {
+                            self.individuals[j].to_infect += 1;
                         }
                     }
                 }
@@ -54,7 +53,6 @@ impl<'a> Day<'a> {
                     individual.update_desired();
                 } else {
                     individual.update_escape(&collisions[idx]);
-                    individual.update_infected(infections[idx], self.transmission_rate);
                 }
             }
 
