@@ -25,7 +25,7 @@ pub struct Individual {
     pub state: InfectionState,
     pub infection_collisions: HashSet<usize>,
     residence: Location,
-    targets: [Target; 4],
+    targets: [Target; 3],
     target_idx: usize,
 }
 
@@ -65,7 +65,7 @@ impl Individual {
     }
 
     pub fn recreate_random_target(&mut self) {
-        self.targets[2] = Target::new(TARGET_RADIUS);
+        self.targets[1] = Target::new(TARGET_RADIUS);
     }
 
     pub fn update_target(&mut self) -> bool {

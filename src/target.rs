@@ -35,8 +35,8 @@ impl Target {
     }
 }
 
-pub fn generate_targets(last: Location) -> [Target; 4] {
-    let mut targets = (0..3)
+pub fn generate_targets(last: Location) -> [Target; 3] {
+    let mut targets = (0..2)
         .map(|_| Target::new(TARGET_RADIUS))
         .collect::<Vec<_>>();
 

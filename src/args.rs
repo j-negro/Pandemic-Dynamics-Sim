@@ -14,7 +14,7 @@ pub struct Cli {
     pub data_output_path: String,
 
     // Simulation input variables
-    #[arg(short, long, default_value_t = 0.1, value_parser = validate_rate)]
+    #[arg(short, long, default_value_t = 0.55, value_parser = validate_rate)]
     pub transmission_rate: f64,
 
     #[arg(short, long, default_value_t = 7)]
@@ -23,7 +23,7 @@ pub struct Cli {
     #[arg(short, long, default_value_t = 0.05, value_parser = validate_rate)]
     pub mortality_rate: f64,
 
-    #[arg(short, long, default_value_t = 200)]
+    #[arg(short, long, default_value_t = 1000)]
     pub particle_count: usize,
 }
 
