@@ -34,7 +34,7 @@ MORTALITY_RATE_EXPERIMENT = [
         "--data-output-path",
         RESULTS_PATH + "mortality/" + str(x) + ".txt",
     ]
-    for x in TRANSMISSION_RATE_RANGE
+    for x in MORTALITY_RATE_RANGE
 ]
 INFECTION_PERIOD_EXPERIMENT = [
     [
@@ -47,7 +47,7 @@ INFECTION_PERIOD_EXPERIMENT = [
         "--data-output-path",
         RESULTS_PATH + "period/" + str(x) + ".txt",
     ]
-    for x in TRANSMISSION_RATE_RANGE
+    for x in INFECTION_PERIOD_RANGE
 ]
 
 

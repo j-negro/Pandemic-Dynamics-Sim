@@ -24,14 +24,16 @@ fn main() -> Result<()> {
         args.mortality_rate,
     );
 
-    let file = File::create(args.xyz_output_path)?;
+    let file = args.xyz_output_path.map(|path| File::create(path));
 
     let mut status = Vec::new();
     status.push((simulation.date, simulation.infection_status));
 
     while let Some(mut day) = simulation.next_day() {
         loop {
-            io::output_simulation(&file, &day.individuals)?;
+            if let Some(Result::Ok(file)) = &file {
+                io::output_simulation(file, &day.individuals)?;
+            }
 
             let finished = day.run(args.output_step_count);
 
