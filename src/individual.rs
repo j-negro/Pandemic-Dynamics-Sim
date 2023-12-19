@@ -49,7 +49,7 @@ impl Individual {
     // Infection Functions
 
     pub fn infect(&mut self, infected_period: usize) {
-        self.state = InfectionState::Infected(infected_period);
+        self.state = InfectionState::Infected(infected_period - 1);
     }
 
     pub fn is_infected(&self) -> bool {

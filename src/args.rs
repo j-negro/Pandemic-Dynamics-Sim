@@ -4,7 +4,7 @@ use clap::Parser;
 #[command(name = "Pandemic Dynamics Sim", author, version, about)]
 pub struct Cli {
     // Output parameters
-    #[arg(short, long, default_value_t = 1)]
+    #[arg(short, long, default_value_t = 100)]
     pub output_step_count: usize,
 
     #[arg(short, long)]
