@@ -37,11 +37,17 @@ impl<'a> Day<'a> {
                         collisions[j].push(particle_coords);
 
                         if self.individuals[j].is_infected() && !self.individuals[i].is_infected() {
-                            self.individuals[i].to_infect += 1;
+                            let other_particle_id = self.individuals[j].id;
+                            self.individuals[i]
+                                .infection_collisions
+                                .insert(other_particle_id);
                         }
 
                         if self.individuals[i].is_infected() && !self.individuals[j].is_infected() {
-                            self.individuals[j].to_infect += 1;
+                            let other_particle_id = self.individuals[i].id;
+                            self.individuals[j]
+                                .infection_collisions
+                                .insert(other_particle_id);
                         }
                     }
                 }

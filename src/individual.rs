@@ -1,4 +1,4 @@
-use rand::{thread_rng, Rng};
+use std::collections::HashSet;
 
 use crate::{
     constants::{
@@ -23,7 +23,7 @@ pub struct Individual {
     radius: f64,
     // Infection Information
     pub state: InfectionState,
-    pub to_infect: usize,
+    pub infection_collisions: HashSet<usize>,
     residence: Location,
     targets: [Target; 4],
     target_idx: usize,
@@ -39,7 +39,7 @@ impl Individual {
             vy: 0.0,
             radius: MIN_PARTICLE_RADIUS,
             state: InfectionState::Susceptible,
-            to_infect: 0,
+            infection_collisions: HashSet::new(),
             residence,
             targets: target::generate_targets(residence),
             target_idx: 0,

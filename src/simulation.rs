@@ -1,3 +1,5 @@
+use std::collections::HashSet;
+
 use rand::{thread_rng, Rng};
 
 use crate::{
@@ -86,13 +88,13 @@ impl Simulation {
                 InfectionState::Susceptible => {
                     let mut rng = thread_rng();
 
-                    let chance_of_infection =
-                        1f64 - (1f64 - self.transmission_rate).powi(i.to_infect as i32);
+                    let chance_of_infection = 1f64
+                        - (1f64 - self.transmission_rate).powi(i.infection_collisions.len() as i32);
 
                     if rng.gen_range(0f64..1f64) < chance_of_infection {
                         i.infect(self.infectious_period);
                     } else {
-                        i.to_infect = 0;
+                        i.infection_collisions = HashSet::new();
                     }
                 }
                 InfectionState::Infected(0) => {
