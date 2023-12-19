@@ -1,6 +1,6 @@
 use std::collections::HashSet;
 
-use rand::{thread_rng, Rng};
+use rand::Rng;
 
 use crate::{
     constants::{distance, MIN_PARTICLE_RADIUS, SIMULATION_LENGHT},
@@ -86,15 +86,13 @@ impl Simulation {
         self.individuals.retain_mut(|i| {
             match i.state {
                 InfectionState::Susceptible => {
-                    let mut rng = thread_rng();
-
                     let chance_of_infection = 1f64
                         - (1f64 - self.transmission_rate).powi(i.infection_collisions.len() as i32);
 
                     if rng.gen_range(0f64..1f64) < chance_of_infection {
                         i.infect(self.infectious_period);
                     } else {
-                        i.infection_collisions = HashSet::new();
+                        i.infection_collisions.clear();
                     }
                 }
                 InfectionState::Infected(0) => {
