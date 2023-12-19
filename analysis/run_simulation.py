@@ -1,3 +1,4 @@
+import itertools
 import os
 import subprocess
 from concurrent.futures import ProcessPoolExecutor
@@ -12,13 +13,13 @@ TRANSMISSION_RATE_EXPERIMENT = [
     [
         [
             "-t",
-            str(x),
+            f"{x:.2f}",
             "-i",
             "3",
             "-m",
             "0.1",
             "--data-output-path",
-            RESULTS_PATH + f"transmission/tra{x}_run{run}.txt",
+            RESULTS_PATH + f"transmission/tra{x:.2f}_run{run}.txt",
         ]
         for x in TRANSMISSION_RATE_RANGE
         for run in range(0, 3)
@@ -32,9 +33,9 @@ MORTALITY_RATE_EXPERIMENT = [
             "-i",
             "3",
             "-m",
-            str(x),
+            f"{x:.2f}",
             "--data-output-path",
-            RESULTS_PATH + f"mortality/mor{x}_run{run}.txt",
+            RESULTS_PATH + f"mortality/mor{x:.2f}_run{run}.txt",
         ]
         for x in MORTALITY_RATE_RANGE
         for run in range(0, 3)
@@ -62,11 +63,6 @@ for name in ["transmission", "mortality", "period"]:
     os.makedirs(RESULTS_PATH + name, exist_ok=True)
 
 
-subprocess.run(
-    "cargo build -r",
-)
-
-
 def run_subprocess(arguments_list: list[str]):
     print(f"Starting run with arguments: {arguments_list}")
     subprocess.run(
@@ -76,10 +72,14 @@ def run_subprocess(arguments_list: list[str]):
     )
 
 
-all_args = (
-    TRANSMISSION_RATE_EXPERIMENT
-    + MORTALITY_RATE_EXPERIMENT
-    + INFECTION_PERIOD_EXPERIMENT
+all_args = list(
+    itertools.chain.from_iterable(
+        (
+            TRANSMISSION_RATE_EXPERIMENT
+            + MORTALITY_RATE_EXPERIMENT
+            + INFECTION_PERIOD_EXPERIMENT
+        )
+    )
 )
 
 with ProcessPoolExecutor(max_workers=len(all_args)) as executor:
