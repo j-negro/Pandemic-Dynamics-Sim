@@ -1,6 +1,6 @@
 import os
 import subprocess
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ProcessPoolExecutor
 
 RESULTS_PATH = "./analysis/data/"
 
@@ -70,7 +70,7 @@ all_args = (
     + INFECTION_PERIOD_EXPERIMENT
 )
 
-with ThreadPoolExecutor(max_workers=len(all_args)) as executor:
+with ProcessPoolExecutor(max_workers=len(all_args)) as executor:
     for result in executor.map(
         run_subprocess,
         all_args,
