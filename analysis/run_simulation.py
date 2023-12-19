@@ -1,5 +1,6 @@
 import os
 import subprocess
+from concurrent.futures import ThreadPoolExecutor
 
 RESULTS_PATH = "./analysis/data/"
 
@@ -54,14 +55,24 @@ for name in ["transmission", "mortality", "period"]:
     os.makedirs(RESULTS_PATH + name, exist_ok=True)
 
 
-for arguments_str in (
-    TRANSMISSION_RATE_EXPERIMENT
-    + MORTALITY_RATE_EXPERIMENT
-    + INFECTION_PERIOD_EXPERIMENT
-):
-    print(f"Starting runs with arguments: {arguments_str}")
+def run_subprocess(arguments_list: list[str]):
+    print(f"Starting run with arguments: {arguments_list}")
     subprocess.run(
-        ["./target/release/pandemic_dynamics_sim", "-o", "100"] + arguments_str,
+        ["./target/release/pandemic_dynamics_sim", "-o", "100"] + arguments_list,
         capture_output=True,
         text=True,
     )
+
+
+all_args = (
+    TRANSMISSION_RATE_EXPERIMENT
+    + MORTALITY_RATE_EXPERIMENT
+    + INFECTION_PERIOD_EXPERIMENT
+)
+
+with ThreadPoolExecutor(max_workers=len(all_args)) as executor:
+    for result in executor.map(
+        run_subprocess,
+        all_args,
+    ):
+        print(result)
