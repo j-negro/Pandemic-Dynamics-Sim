@@ -91,7 +91,7 @@ impl Simulation {
                 InfectionState::Infected(0) => {
                     let p = rng.gen_range(0f64..1f64);
 
-                    if p < self.mortality_rate {
+                    if p > self.mortality_rate {
                         i.state = InfectionState::Recovered;
                     } else {
                         return false;
