@@ -33,9 +33,9 @@ pub fn output_simulation(file: &File, particles: &Vec<&mut Individual>) -> Resul
         let velocities = particle.get_velocities();
 
         let color = match particle.state {
-            InfectionState::Susceptible => (0.0, 0.0, 1.0),
-            InfectionState::Infected(n) => (n as f64 * 0.14, 1.0 - n as f64 * 0.14, 0.0),
-            InfectionState::Recovered => (0.0, 1.0, 0.0),
+            InfectionState::Susceptible => (0, 0, 1),
+            InfectionState::Infected(_) => (1, 0, 0),
+            InfectionState::Recovered => (0, 1, 0),
         };
 
         writeln!(
