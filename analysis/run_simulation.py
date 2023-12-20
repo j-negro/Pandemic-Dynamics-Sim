@@ -5,9 +5,9 @@ from concurrent.futures import ProcessPoolExecutor
 
 RESULTS_PATH = "./analysis/data/"
 
-TRANSMISSION_RATE_RANGE = [x / 100 for x in range(5, 55, 5)]  # 0.4
-MORTALITY_RATE_RANGE = [x / 100 for x in range(2, 22, 2)]  # 0.10
-INFECTION_PERIOD_RANGE = range(2, 8)  # 3
+TRANSMISSION_RATE_RANGE = [x / 100 for x in range(2, 22, 2)]  # 0.1
+MORTALITY_RATE_RANGE = [x / 100 for x in range(1, 11)]  # 0.05
+INFECTION_PERIOD_RANGE = range(1, 8)  # 3
 RUNS = range(0, 10)
 
 TRANSMISSION_RATE_EXPERIMENT = [
@@ -18,7 +18,7 @@ TRANSMISSION_RATE_EXPERIMENT = [
             "-i",
             "3",
             "-m",
-            "0.1",
+            "0.05",
             "--data-output-path",
             RESULTS_PATH + f"transmission/tra{x:.2f}_run{run}.txt",
         ]
@@ -30,7 +30,7 @@ MORTALITY_RATE_EXPERIMENT = [
     [
         [
             "-t",
-            "0.25",
+            "0.1",
             "-i",
             "3",
             "-m",
@@ -46,11 +46,11 @@ INFECTION_PERIOD_EXPERIMENT = [
     [
         [
             "-t",
-            "0.25",
+            "0.1",
             "-i",
             str(x),
             "-m",
-            "0.1",
+            "0.05",
             "--data-output-path",
             RESULTS_PATH + f"period/per{x}_run{run}.txt",
         ]
