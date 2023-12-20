@@ -149,13 +149,18 @@ RESULTS_PATH = "./analysis/figs/"
 def plot(data: dict[str, dict[float, list[dict[str, float]]]]):
     os.makedirs(RESULTS_PATH, exist_ok=True)
 
-    # cumulative_graphs(data["period"][2])
+    cumulative_graphs(data["period"][2], "period", 2)
+    cumulative_graphs(data["period"][7], "period", 7)
+    cumulative_graphs(data["transmission"][0.05], "transmission", 0.05)
+    cumulative_graphs(data["transmission"][0.5], "transmission", 0.5)
+    cumulative_graphs(data["mortality"][0.02], "mortality", 0.02)
+    cumulative_graphs(data["mortality"][0.2], "mortality", 0.2)
     graph_total_vs_variable(data["mortality"], "Tasa de Mortalidad", 0.02)
     graph_total_vs_variable(data["transmission"], "Tasa de Infección", 0.05)
     graph_total_vs_variable(data["period"], "Período de Contagio (días)", 1)
 
 
-def cumulative_graphs(data: list[dict[str, float]]):
+def cumulative_graphs(data: list[dict[str, float]], type, value):
     fig1 = plt.figure(figsize=(1920 / 108, 1080 / 108), dpi=108)
     plt.rcParams["font.family"] = "serif"
     plt.rcParams.update({"font.size": 16})
@@ -168,7 +173,7 @@ def cumulative_graphs(data: list[dict[str, float]]):
 
     for inf_status in data:
         days.append(inf_status["day"])
-        susceptibles.append(inf_status["susceptible"])
+        susceptibles.append(inf_status["susceptibles"])
         infected.append(inf_status["infected"])
         recovered.append(inf_status["recovered"])
         dead.append(inf_status["dead"])
@@ -184,7 +189,7 @@ def cumulative_graphs(data: list[dict[str, float]]):
     plt.legend()
 
     # Show the plot
-    fig1.savefig(RESULTS_PATH + f"temporal.png")
+    fig1.savefig(RESULTS_PATH + f"temporal_{type}_{str(value)}.png")
 
     fig, ax = plt.subplots(figsize=(1920 / 108, 1080 / 108), dpi=108)
     plt.xlabel("Tiempo (días)")
@@ -201,8 +206,8 @@ def cumulative_graphs(data: list[dict[str, float]]):
     plt.legend(loc="center left")
     plt.xlim(0, days[-1])
     plt.ylim(0, 1000)
-    fig.show()
-    fig.savefig(RESULTS_PATH + f"cumulative_graph.png")
+    # fig.show()
+    fig.savefig(RESULTS_PATH + f"cumulative_graph_{type}_{str(value)}.png")
 
 
 def graph_total_vs_variable(
