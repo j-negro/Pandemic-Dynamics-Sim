@@ -1,4 +1,5 @@
 import os
+from copy import deepcopy
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -105,9 +106,10 @@ def aggregate_runs(
         run_len = len(runs_list[idx])
         if run_len < max_lenght and run_len != 0:
             len_diff = max_lenght - run_len
-            runs_list[idx][run_len:] = [
-                runs_list[idx][run_len - 1] for _ in range(0, len_diff)
-            ]
+            for add_idx in range(0, len_diff):
+                copied_day = deepcopy(runs_list[idx][run_len - 1])
+                copied_day.day += add_idx + 1
+                runs_list[idx].append(copied_day)
 
     aggregates_list = {
         "lenght_mean": np.mean(lenghts),
@@ -199,7 +201,9 @@ def graph_lenght_vs_variable(
     fig.savefig(RESULTS_PATH + f"lenghts_{experiment_name}.png")
 
 
-def cumulative_graphs(data: float | list[dict[str, float]], experiment_name, value):
+def cumulative_graphs(
+    data: float | list[dict[str, float]], experiment_name: str, value: float | int
+):
     if type(data) is float:
         return
 
@@ -250,7 +254,7 @@ def cumulative_graphs(data: float | list[dict[str, float]], experiment_name, val
         labels=["Infectados", "Fallecidos", "Recuperados", "Susceptibles"],
         colors=["red", "grey", "green", "blue"],
     )
-    plt.legend(loc="center left")
+    plt.legend(loc="upper left")
     plt.xlim(0, days[-1])
     plt.ylim(0, 1000)
     fig.savefig(RESULTS_PATH + f"cumulative_graph_{experiment_name}_{str(value)}.png")
