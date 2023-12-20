@@ -1,6 +1,9 @@
 import itertools
 import os
 
+import matplotlib.pyplot as plt
+import numpy as np
+
 DIR = "./analysis/data/"
 
 EXPERIMENTS = ["transmission", "period", "mortality"]
@@ -8,7 +11,7 @@ RUN_COUNT = 3
 
 
 def parse_results():
-    experiments_dict = {}
+    experiments_dict: dict[str, dict[float, list[InfectionStatus]]] = {}
 
     for experiment in EXPERIMENTS:
         current_experiment_dict: dict[float, list[InfectionStatus]] = {}
@@ -117,14 +120,67 @@ def add_status(
     return addition
 
 
+RESULTS_PATH = "./analysis/figs/"
+
+
+def plot(data: dict[str, dict[float, list[InfectionStatus]]]):
+    os.makedirs(RESULTS_PATH, exist_ok=True)
+
+    cumulative_graphs(data["period"][2])
+
+
+def cumulative_graphs(data: list[InfectionStatus]):
+    fig1 = plt.figure(figsize=(1920 / 108, 1080 / 108), dpi=108)
+    plt.rcParams["font.family"] = "serif"
+    plt.rcParams.update({"font.size": 16})
+
+    days = []
+    susceptibles = []
+    infected = []
+    recovered = []
+    dead = []
+
+    for inf_status in data:
+        days.append(inf_status.day)
+        susceptibles.append(inf_status.susceptible)
+        infected.append(inf_status.infected)
+        recovered.append(inf_status.recovered)
+        dead.append(inf_status.dead)
+
+    # Create a cumulative graph
+    plt.plot(susceptibles, "o-", label="Susceptibles", color="blue")
+    plt.plot(infected, "o-", label="Infectados", color="red")
+    plt.plot(recovered, "o-", label="Recuperados", color="green")
+    plt.plot(dead, "o-", label="Muertos", color="black")
+
+    # Customize the plot
+    plt.xlabel("Tiempo (días)")
+    plt.ylabel("Cantidad de individuos")
+    plt.legend()
+
+    # Show the plot
+    fig1.savefig(RESULTS_PATH + f"temporal.png")
+
+    fig, ax = plt.subplots(figsize=(1920 / 108, 1080 / 108), dpi=108)
+    plt.xlabel("Tiempo (días)")
+    plt.ylabel("Cantidad de individuos")
+    ax.stackplot(
+        days,
+        infected,
+        dead,
+        recovered,
+        susceptibles,
+        labels=["Infectados", "Muertos", "Recuperados", "Susceptibles"],
+        colors=["red", "grey", "green", "blue"],
+    )
+    plt.legend(loc="center left")
+    plt.xlim(0, days[-1])
+    plt.ylim(0, 1000)
+    fig.show()
+    fig.savefig(RESULTS_PATH + f"cumulative_graph.png")
+
+
 if __name__ == "__main__":
     rs = parse_results()
 
-    for exp, values_dict in rs.items():
-        print(exp)
-        for config, values in values_dict.items():
-            print(f"Config {config}")
-            print(f"Values:")
-            for value in values:
-                print(value)
-        print()
+    plot(rs)
