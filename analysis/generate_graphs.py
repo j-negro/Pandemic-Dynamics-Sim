@@ -151,12 +151,9 @@ def plot(data: dict[str, dict[float, list[dict[str, float]]]]):
     os.makedirs(RESULTS_PATH, exist_ok=True)
 
     # cumulative_graphs(data["period"][2])
-    graph_total_vs_variable(
-        data["mortality"],
-        "dead",
-        "Tasa de mortalidad",
-        "Cantidad de individios fallecidos",
-    )
+    graph_total_vs_variable(data["mortality"], "Tasa de Mortalidad", 0.02)
+    graph_total_vs_variable(data["transmission"], "Tasa de Infección", 0.05)
+    graph_total_vs_variable(data["period"], "Período de Contagio", 1)
 
 
 def cumulative_graphs(data: list[dict[str, float]]):
@@ -180,7 +177,7 @@ def cumulative_graphs(data: list[dict[str, float]]):
     plt.plot(susceptibles, "o-", label="Susceptibles", color="blue")
     plt.plot(infected, "o-", label="Infectados", color="red")
     plt.plot(recovered, "o-", label="Recuperados", color="green")
-    plt.plot(dead, "o-", label="Muertos", color="black")
+    plt.plot(dead, "o-", label="Fallecidos", color="black")
 
     # Customize the plot
     plt.xlabel("Tiempo (días)")
@@ -199,7 +196,7 @@ def cumulative_graphs(data: list[dict[str, float]]):
         dead,
         recovered,
         susceptibles,
-        labels=["Infectados", "Muertos", "Recuperados", "Susceptibles"],
+        labels=["Infectados", "Fallecidos", "Recuperados", "Susceptibles"],
         colors=["red", "grey", "green", "blue"],
     )
     plt.legend(loc="center left")
@@ -210,56 +207,76 @@ def cumulative_graphs(data: list[dict[str, float]]):
 
 
 def graph_total_vs_variable(
-    data: dict[float, list[dict[str, float]]],
-    output_name: str,
-    xlabel: str,
-    ylabel: str,
+    data: dict[float, list[dict[str, float]]], xlabel: str, xstep: float
 ):
     fig1 = plt.figure(figsize=(1920 / 108, 1080 / 108), dpi=108)
     plt.rcParams["font.family"] = "serif"
     plt.rcParams.update({"font.size": 16})
 
     variable_input_list = []
-    medians = []
-    stds = []
+    susceptible_medians = []
+    susceptible_stds = []
+    # recovered_medians = []
+    # recovered_stds = []
+    dead_medians = []
+    dead_stds = []
 
     for rate, outputs in data.items():
         variable_input_list.append(rate)
-        medians.append(outputs[-1][output_name])
-        stds.append(outputs[-1][f"{output_name}_std"])
 
-    (_, caps, _) = plt.errorbar(
+        susceptible_medians.append(outputs[-1]["susceptibles"])
+        susceptible_stds.append(outputs[-1]["susceptibles_std"])
+
+        # recovered_medians.append(outputs[-1]["recovered"])
+        # recovered_stds.append(outputs[-1]["recovered_std"])
+
+        dead_medians.append(outputs[-1]["dead"])
+        dead_stds.append(outputs[-1]["dead_std"])
+
+    plt.errorbar(
         variable_input_list,
-        medians,
-        stds,
+        susceptible_medians,
+        susceptible_stds,
         fmt="x",
+        label="Susceptibles",
         color="blue",
         markersize=8,
         capsize=5,
     )
 
-    for cap in caps:
-        cap.set_markeredgewidth(1)
+    # plt.errorbar(
+    #     variable_input_list,
+    #     recovered_medians,
+    #     recovered_stds,
+    #     fmt="x",
+    #     label="Recuperados",
+    #     color="green",
+    #     markersize=8,
+    #     capsize=5,
+    # )
 
-    # Customize the plot
+    plt.errorbar(
+        variable_input_list,
+        dead_medians,
+        dead_stds,
+        fmt="x",
+        label="Fallecidos",
+        color="black",
+        markersize=8,
+        capsize=5,
+    )
+
     plt.xlabel(xlabel)
-    plt.ylabel(ylabel)
-    plt.gca().xaxis.set_major_locator(MultipleLocator(0.02))
+    plt.ylabel("Cantidad de individuos")
+    plt.gca().xaxis.set_major_locator(MultipleLocator(xstep))
     plt.grid()
+    plt.legend()
 
     # Show the plot
-    fig1.savefig(RESULTS_PATH + f"deaths.png")
+    fig1.savefig(RESULTS_PATH + f"{xlabel}.png")
 
 
 if __name__ == "__main__":
     rs = parse_results()
-
-    # for key, configs_dict in rs.items():
-    #     print(f"Experiment {key}")
-    #     for config, results in configs_dict.items():
-    #         print(f"Configuration {config}")
-    #         for day in results:
-    #             print(f"Day {day["day"]}")
-    #             print(day)
 
     plot(rs)
