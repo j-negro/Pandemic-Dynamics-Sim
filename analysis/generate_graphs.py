@@ -3,81 +3,12 @@ import os
 
 import matplotlib.pyplot as plt
 import numpy as np
+from matplotlib.ticker import MultipleLocator
 
 DIR = "./analysis/data/"
 
 EXPERIMENTS = ["transmission", "period", "mortality"]
 RUN_COUNT = 3
-
-
-def parse_results():
-    experiments_dict: dict[str, dict[float, list[InfectionStatus]]] = {}
-
-    for experiment in EXPERIMENTS:
-        current_experiment_dict: dict[float, list[InfectionStatus]] = {}
-
-        for file in os.listdir(DIR + experiment):
-            if not file.endswith(".txt"):
-                continue
-
-            filename, _ = os.path.splitext(file)
-
-            # NOTE: Filenames look like "tra0.30_run0"
-            variable_value = filename.split("_")[0][3:]
-
-            try:
-                variable_value = float(variable_value)
-            except:
-                raise ValueError("Parsing error")
-
-            if not variable_value in current_experiment_dict.keys():
-                current_experiment_dict[variable_value] = []
-
-            current_run_arr = []
-            with open(DIR + f"{experiment}/{file}", "r") as f:
-                for line in f:
-                    values_list = list(map(lambda s: int(s), line.split(" ")))
-                    current_run_arr.append(
-                        InfectionStatus(
-                            values_list[0],
-                            values_list[1],
-                            values_list[2],
-                            values_list[3],
-                            values_list[4],
-                        )
-                    )
-
-            # Add different runs together
-            previous_run_arr = current_experiment_dict[variable_value]
-
-            len_prev = len(previous_run_arr)
-            len_curr = len(current_run_arr)
-            max_lenght = max(len_prev, len_curr)
-
-            if len_prev < max_lenght and len_prev != 0:
-                len_diff = max_lenght - len_prev
-                previous_run_arr[len_prev:] = [
-                    previous_run_arr[len_prev - 1] for _ in range(0, len_diff)
-                ]
-            elif len_curr < max_lenght and len_curr != 0:
-                len_diff = max_lenght - len_curr
-                current_run_arr[len_curr:] = [
-                    current_run_arr[len_curr - 1] for _ in range(0, len_diff)
-                ]
-
-            current_experiment_dict[variable_value] = [
-                add_status(x, y)
-                for (x, y) in itertools.zip_longest(current_run_arr, previous_run_arr)
-            ]
-
-        # Divide all InfectionStatus by number of runs to calculate average.
-        for run_values in current_experiment_dict.values():
-            for value in run_values:
-                value.divide_by(RUN_COUNT)
-
-        # Add current experiment to dict
-        experiments_dict[experiment] = current_experiment_dict
-    return experiments_dict
 
 
 class InfectionStatus:
@@ -120,16 +51,115 @@ def add_status(
     return addition
 
 
+def parse_results() -> dict[str, dict[float, list[dict[str, float]]]]:
+    experiments_dict: dict[str, dict[float, list[dict[str, float]]]] = {}
+
+    for experiment in EXPERIMENTS:
+        curr_experiment_dict: dict[float, list[list[InfectionStatus]]] = {}
+
+        for file in os.listdir(DIR + experiment):
+            if not file.endswith(".txt"):
+                continue
+
+            filename, _ = os.path.splitext(file)
+
+            # NOTE: Filenames look like "tra0.30_run0"
+            variable_value = filename.split("_")[0][3:]
+
+            try:
+                variable_value = float(variable_value)
+            except:
+                raise ValueError("Parsing error")
+
+            if not variable_value in curr_experiment_dict.keys():
+                curr_experiment_dict[variable_value] = []
+
+            current_run_arr = []
+            with open(DIR + f"{experiment}/{file}", "r") as f:
+                for line in f:
+                    values_list = list(map(lambda s: int(s), line.split(" ")))
+                    current_run_arr.append(
+                        InfectionStatus(
+                            values_list[0],
+                            values_list[1],
+                            values_list[2],
+                            values_list[3],
+                            values_list[4],
+                        )
+                    )
+
+            curr_experiment_dict[variable_value].append(current_run_arr)
+
+        # Add current experiment to dict
+        experiments_dict[experiment] = {
+            key: aggregate_runs(all_runs_list)
+            for key, all_runs_list in curr_experiment_dict.items()
+        }
+
+    return experiments_dict
+
+
+def aggregate_runs(runs_list: list[list[InfectionStatus]]) -> list[dict[str, float]]:
+    """Each run is a list of InfectionStatus (one per day of said run). I need a
+    list where each element contains each average and each standart deviation for
+    each variable in InfectionStatus"""
+
+    # Extend the arrays of different runs to have the same lenght.
+    max_lenght = max(map(lambda l: len(l), runs_list))
+    for idx in range(0, len(runs_list)):
+        run_len = len(runs_list[idx])
+        if run_len < max_lenght and run_len != 0:
+            len_diff = max_lenght - run_len
+            runs_list[idx][run_len:] = [
+                runs_list[idx][run_len - 1] for _ in range(0, len_diff)
+            ]
+
+    aggregates_list = []
+    for day_idx in range(0, max_lenght):
+        susceptibles: list[float] = []
+        infected: list[float] = []
+        recovered: list[float] = []
+        dead: list[float] = []
+
+        for run in runs_list:
+            day_in_run = run[day_idx]
+            susceptibles.append(day_in_run.susceptible)
+            infected.append(day_in_run.infected)
+            recovered.append(day_in_run.recovered)
+            dead.append(day_in_run.dead)
+
+        aggregates_list.append(
+            {
+                "day": runs_list[0][day_idx].day,
+                "susceptibles": np.mean(susceptibles),
+                "infected": np.mean(infected),
+                "recovered": np.mean(recovered),
+                "dead": np.mean(dead),
+                "susceptibles_std": np.std(susceptibles),
+                "infected_std": np.std(infected),
+                "recovered_std": np.std(recovered),
+                "dead_std": np.std(dead),
+            }
+        )
+    return aggregates_list
+
+
 RESULTS_PATH = "./analysis/figs/"
 
 
-def plot(data: dict[str, dict[float, list[InfectionStatus]]]):
+def plot(data: dict[str, dict[float, list[dict[str, float]]]]):
     os.makedirs(RESULTS_PATH, exist_ok=True)
 
-    cumulative_graphs(data["period"][2])
+    # cumulative_graphs(data["period"][2])
+    graph_total_vs_variable(
+        data["mortality"],
+        "dead",
+        "Tasa de mortalidad",
+        "Cantidad de individios fallecidos",
+    )
 
 
-def cumulative_graphs(data: list[InfectionStatus]):
+def cumulative_graphs(data: list[dict[str, float]]):
     fig1 = plt.figure(figsize=(1920 / 108, 1080 / 108), dpi=108)
     plt.rcParams["font.family"] = "serif"
     plt.rcParams.update({"font.size": 16})
@@ -141,13 +171,12 @@ def cumulative_graphs(data: list[InfectionStatus]):
     dead = []
 
     for inf_status in data:
-        days.append(inf_status.day)
-        susceptibles.append(inf_status.susceptible)
-        infected.append(inf_status.infected)
-        recovered.append(inf_status.recovered)
-        dead.append(inf_status.dead)
+        days.append(inf_status["day"])
+        susceptibles.append(inf_status["susceptible"])
+        infected.append(inf_status["infected"])
+        recovered.append(inf_status["recovered"])
+        dead.append(inf_status["dead"])
 
-    # Create a cumulative graph
     plt.plot(susceptibles, "o-", label="Susceptibles", color="blue")
     plt.plot(infected, "o-", label="Infectados", color="red")
     plt.plot(recovered, "o-", label="Recuperados", color="green")
@@ -180,7 +209,57 @@ def cumulative_graphs(data: list[InfectionStatus]):
     fig.savefig(RESULTS_PATH + f"cumulative_graph.png")
 
 
+def graph_total_vs_variable(
+    data: dict[float, list[dict[str, float]]],
+    output_name: str,
+    xlabel: str,
+    ylabel: str,
+):
+    fig1 = plt.figure(figsize=(1920 / 108, 1080 / 108), dpi=108)
+    plt.rcParams["font.family"] = "serif"
+    plt.rcParams.update({"font.size": 16})
+
+    variable_input_list = []
+    medians = []
+    stds = []
+
+    for rate, outputs in data.items():
+        variable_input_list.append(rate)
+        medians.append(outputs[-1][output_name])
+        stds.append(outputs[-1][f"{output_name}_std"])
+
+    (_, caps, _) = plt.errorbar(
+        variable_input_list,
+        medians,
+        stds,
+        fmt="x",
+        color="blue",
+        markersize=8,
+        capsize=5,
+    )
+
+    for cap in caps:
+        cap.set_markeredgewidth(1)
+
+    # Customize the plot
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel)
+    plt.gca().xaxis.set_major_locator(MultipleLocator(0.02))
+    plt.grid()
+
+    # Show the plot
+    fig1.savefig(RESULTS_PATH + f"deaths.png")
+
+
 if __name__ == "__main__":
     rs = parse_results()
+
+    # for key, configs_dict in rs.items():
+    #     print(f"Experiment {key}")
+    #     for config, results in configs_dict.items():
+    #         print(f"Configuration {config}")
+    #         for day in results:
+    #             print(f"Day {day["day"]}")
+    #             print(day)
 
     plot(rs)
