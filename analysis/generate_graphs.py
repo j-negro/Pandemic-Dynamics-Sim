@@ -1,4 +1,3 @@
-import itertools
 import os
 
 import matplotlib.pyplot as plt
@@ -153,7 +152,7 @@ def plot(data: dict[str, dict[float, list[dict[str, float]]]]):
     # cumulative_graphs(data["period"][2])
     graph_total_vs_variable(data["mortality"], "Tasa de Mortalidad", 0.02)
     graph_total_vs_variable(data["transmission"], "Tasa de Infección", 0.05)
-    graph_total_vs_variable(data["period"], "Período de Contagio", 1)
+    graph_total_vs_variable(data["period"], "Período de Contagio (días)", 1)
 
 
 def cumulative_graphs(data: list[dict[str, float]]):
