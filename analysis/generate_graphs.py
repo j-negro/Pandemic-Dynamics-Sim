@@ -149,15 +149,15 @@ RESULTS_PATH = "./analysis/figs/"
 def plot(data: dict[str, dict[float, dict[str, float | list[dict[str, float]]]]]):
     os.makedirs(RESULTS_PATH, exist_ok=True)
 
-    cumulative_graphs(data["period"][2]["aggregates"], "period", 2)
+    cumulative_graphs(data["period"][1]["aggregates"], "period", 1)
     cumulative_graphs(data["period"][7]["aggregates"], "period", 7)
-    cumulative_graphs(data["transmission"][0.05]["aggregates"], "transmission", 0.05)
-    cumulative_graphs(data["transmission"][0.5]["aggregates"], "transmission", 0.5)
-    cumulative_graphs(data["mortality"][0.02]["aggregates"], "mortality", 0.02)
-    cumulative_graphs(data["mortality"][0.2]["aggregates"], "mortality", 0.2)
+    cumulative_graphs(data["transmission"][0.04]["aggregates"], "transmission", 0.04)
+    cumulative_graphs(data["transmission"][0.2]["aggregates"], "transmission", 0.2)
+    cumulative_graphs(data["mortality"][0.01]["aggregates"], "mortality", 0.01)
+    cumulative_graphs(data["mortality"][0.1]["aggregates"], "mortality", 0.1)
 
-    graph_total_vs_variable(data["mortality"], "Tasa de Mortalidad", 0.02)
-    graph_total_vs_variable(data["transmission"], "Tasa de Infección", 0.05)
+    graph_total_vs_variable(data["mortality"], "Tasa de Mortalidad", 0.01)
+    graph_total_vs_variable(data["transmission"], "Tasa de Infección", 0.04)
     graph_total_vs_variable(data["period"], "Período de Contagio (días)", 1)
 
     graph_lenght_vs_variable(data["period"], "period", "Período de Contagio (días)")
@@ -179,7 +179,7 @@ def graph_lenght_vs_variable(
         lenghts_means.append(results["lenght_mean"])
         lenghts_stds.append(results["lenght_std"])
 
-    fig = plt.figure(figsize=(1920 / 108, 1080 / 108), dpi=108)
+    fig = plt.figure(figsize=(1280 / 108, 720 / 108), dpi=108)
     plt.rcParams["font.family"] = "serif"
     plt.rcParams.update({"font.size": 16})
 
@@ -195,6 +195,7 @@ def graph_lenght_vs_variable(
     plt.ylabel("Largo de simulación (días)")
     plt.xlabel(xlabel)
 
+    plt.grid()
     fig.savefig(RESULTS_PATH + f"lenghts_{experiment_name}.png")
 
 
@@ -202,7 +203,7 @@ def cumulative_graphs(data: float | list[dict[str, float]], experiment_name, val
     if type(data) is float:
         return
 
-    fig1 = plt.figure(figsize=(1920 / 108, 1080 / 108), dpi=108)
+    fig1 = plt.figure(figsize=(1280 / 108, 720 / 108), dpi=108)
     plt.rcParams["font.family"] = "serif"
     plt.rcParams.update({"font.size": 16})
 
@@ -230,9 +231,12 @@ def cumulative_graphs(data: float | list[dict[str, float]], experiment_name, val
     plt.legend()
 
     # Show the plot
+    plt.grid()
     fig1.savefig(RESULTS_PATH + f"temporal_{experiment_name}_{str(value)}.png")
 
-    fig, ax = plt.subplots(figsize=(1920 / 108, 1080 / 108), dpi=108)
+    fig, ax = plt.subplots(figsize=(1280 / 108, 720 / 108), dpi=108)
+    plt.rcParams["font.family"] = "serif"
+    plt.rcParams.update({"font.size": 16})
     plt.xlabel("Tiempo (días)")
     plt.ylabel("Cantidad de individuos")
     ax.stackplot(
@@ -247,7 +251,6 @@ def cumulative_graphs(data: float | list[dict[str, float]], experiment_name, val
     plt.legend(loc="center left")
     plt.xlim(0, days[-1])
     plt.ylim(0, 1000)
-    # fig.show()
     fig.savefig(RESULTS_PATH + f"cumulative_graph_{experiment_name}_{str(value)}.png")
 
 
@@ -256,7 +259,7 @@ def graph_total_vs_variable(
     xlabel: str,
     xstep: float,
 ):
-    fig1 = plt.figure(figsize=(1920 / 108, 1080 / 108), dpi=108)
+    fig1 = plt.figure(figsize=(1280 / 108, 720 / 108), dpi=108)
     plt.rcParams["font.family"] = "serif"
     plt.rcParams.update({"font.size": 16})
 
