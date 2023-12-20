@@ -7,7 +7,7 @@ from matplotlib.ticker import MultipleLocator
 DIR = "./analysis/data/"
 
 EXPERIMENTS = ["transmission", "period", "mortality"]
-RUN_COUNT = 3
+RUN_COUNT = 10
 
 
 class InfectionStatus:

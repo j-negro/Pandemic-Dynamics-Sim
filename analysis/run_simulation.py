@@ -8,6 +8,7 @@ RESULTS_PATH = "./analysis/data/"
 TRANSMISSION_RATE_RANGE = [x / 100 for x in range(5, 55, 5)]  # 0.4
 MORTALITY_RATE_RANGE = [x / 100 for x in range(2, 22, 2)]  # 0.10
 INFECTION_PERIOD_RANGE = range(2, 8)  # 3
+RUNS = range(0, 10)
 
 TRANSMISSION_RATE_EXPERIMENT = [
     [
@@ -22,7 +23,7 @@ TRANSMISSION_RATE_EXPERIMENT = [
             RESULTS_PATH + f"transmission/tra{x:.2f}_run{run}.txt",
         ]
         for x in TRANSMISSION_RATE_RANGE
-        for run in range(0, 3)
+        for run in RUNS
     ]
 ]
 MORTALITY_RATE_EXPERIMENT = [
@@ -38,7 +39,7 @@ MORTALITY_RATE_EXPERIMENT = [
             RESULTS_PATH + f"mortality/mor{x:.2f}_run{run}.txt",
         ]
         for x in MORTALITY_RATE_RANGE
-        for run in range(0, 3)
+        for run in RUNS
     ]
 ]
 INFECTION_PERIOD_EXPERIMENT = [
@@ -54,7 +55,7 @@ INFECTION_PERIOD_EXPERIMENT = [
             RESULTS_PATH + f"period/per{x}_run{run}.txt",
         ]
         for x in INFECTION_PERIOD_RANGE
-        for run in range(0, 3)
+        for run in RUNS
     ]
 ]
 
