@@ -39,19 +39,10 @@ class InfectionStatus:
         return f"Day {self.day} ; Susceptible {self.susceptible} ; Infected {self.infected} ; Recovered {self.recovered} ; Dead {self.dead}"
 
 
-def add_status(
-    fst: InfectionStatus | None, snd: InfectionStatus | None
-) -> InfectionStatus:
-    if fst is not None and snd is not None:
-        return fst + snd
-    addition = fst or snd
-    if addition is None:
-        raise ValueError
-    return addition
-
-
-def parse_results() -> dict[str, dict[float, list[dict[str, float]]]]:
-    experiments_dict: dict[str, dict[float, list[dict[str, float]]]] = {}
+def parse_results() -> (
+    dict[str, dict[float, dict[str, float | list[dict[str, float]]]]]
+):
+    experiments_dict = {}
 
     for experiment in EXPERIMENTS:
         curr_experiment_dict: dict[float, list[list[InfectionStatus]]] = {}
@@ -98,13 +89,18 @@ def parse_results() -> dict[str, dict[float, list[dict[str, float]]]]:
     return experiments_dict
 
 
-def aggregate_runs(runs_list: list[list[InfectionStatus]]) -> list[dict[str, float]]:
+def aggregate_runs(
+    runs_list: list[list[InfectionStatus]],
+) -> dict[str, float | list[dict[str, float]]]:
     """Each run is a list of InfectionStatus (one per day of said run). I need a
     list where each element contains each average and each standart deviation for
     each variable in InfectionStatus"""
 
+    # Calculate mean and std of simulation lenght
+    lenghts = list(map(lambda l: len(l), runs_list))
+
     # Extend the arrays of different runs to have the same lenght.
-    max_lenght = max(map(lambda l: len(l), runs_list))
+    max_lenght = max(lenghts)
     for idx in range(0, len(runs_list)):
         run_len = len(runs_list[idx])
         if run_len < max_lenght and run_len != 0:
@@ -113,7 +109,11 @@ def aggregate_runs(runs_list: list[list[InfectionStatus]]) -> list[dict[str, flo
                 runs_list[idx][run_len - 1] for _ in range(0, len_diff)
             ]
 
-    aggregates_list = []
+    aggregates_list = {
+        "lenght_mean": np.mean(lenghts),
+        "lenght_std": np.std(lenghts),
+        "aggregates": [],
+    }
     for day_idx in range(0, max_lenght):
         susceptibles: list[float] = []
         infected: list[float] = []
@@ -127,7 +127,7 @@ def aggregate_runs(runs_list: list[list[InfectionStatus]]) -> list[dict[str, flo
             recovered.append(day_in_run.recovered)
             dead.append(day_in_run.dead)
 
-        aggregates_list.append(
+        aggregates_list["aggregates"].append(
             {
                 "day": runs_list[0][day_idx].day,
                 "susceptibles": np.mean(susceptibles),
@@ -146,21 +146,62 @@ def aggregate_runs(runs_list: list[list[InfectionStatus]]) -> list[dict[str, flo
 RESULTS_PATH = "./analysis/figs/"
 
 
-def plot(data: dict[str, dict[float, list[dict[str, float]]]]):
+def plot(data: dict[str, dict[float, dict[str, float | list[dict[str, float]]]]]):
     os.makedirs(RESULTS_PATH, exist_ok=True)
 
-    cumulative_graphs(data["period"][2], "period", 2)
-    cumulative_graphs(data["period"][7], "period", 7)
-    cumulative_graphs(data["transmission"][0.05], "transmission", 0.05)
-    cumulative_graphs(data["transmission"][0.5], "transmission", 0.5)
-    cumulative_graphs(data["mortality"][0.02], "mortality", 0.02)
-    cumulative_graphs(data["mortality"][0.2], "mortality", 0.2)
+    cumulative_graphs(data["period"][2]["aggregates"], "period", 2)
+    cumulative_graphs(data["period"][7]["aggregates"], "period", 7)
+    cumulative_graphs(data["transmission"][0.05]["aggregates"], "transmission", 0.05)
+    cumulative_graphs(data["transmission"][0.5]["aggregates"], "transmission", 0.5)
+    cumulative_graphs(data["mortality"][0.02]["aggregates"], "mortality", 0.02)
+    cumulative_graphs(data["mortality"][0.2]["aggregates"], "mortality", 0.2)
+
     graph_total_vs_variable(data["mortality"], "Tasa de Mortalidad", 0.02)
     graph_total_vs_variable(data["transmission"], "Tasa de Infección", 0.05)
     graph_total_vs_variable(data["period"], "Período de Contagio (días)", 1)
 
+    graph_lenght_vs_variable(data["period"], "period", "Período de Contagio (días)")
+    graph_lenght_vs_variable(data["transmission"], "transmission", "Tasa de Infección")
+    graph_lenght_vs_variable(data["mortality"], "mortality", "Tasa de Mortalidad")
 
-def cumulative_graphs(data: list[dict[str, float]], type, value):
+
+def graph_lenght_vs_variable(
+    data: dict[float, dict[str, float | list[dict[str, float]]]],
+    experiment_name: str,
+    xlabel: str,
+) -> None:
+    # Extract valuable data
+    variable_values = []
+    lenghts_means = []
+    lenghts_stds = []
+    for value, results in data.items():
+        variable_values.append(value)
+        lenghts_means.append(results["lenght_mean"])
+        lenghts_stds.append(results["lenght_std"])
+
+    fig = plt.figure(figsize=(1920 / 108, 1080 / 108), dpi=108)
+    plt.rcParams["font.family"] = "serif"
+    plt.rcParams.update({"font.size": 16})
+
+    plt.errorbar(
+        variable_values,
+        lenghts_means,
+        lenghts_stds,
+        fmt="o",
+        markersize=8,
+        capsize=5,
+    )
+
+    plt.ylabel("Largo de simulación (días)")
+    plt.xlabel(xlabel)
+
+    fig.savefig(RESULTS_PATH + f"lenghts_{experiment_name}.png")
+
+
+def cumulative_graphs(data: float | list[dict[str, float]], experiment_name, value):
+    if type(data) is float:
+        return
+
     fig1 = plt.figure(figsize=(1920 / 108, 1080 / 108), dpi=108)
     plt.rcParams["font.family"] = "serif"
     plt.rcParams.update({"font.size": 16})
@@ -189,7 +230,7 @@ def cumulative_graphs(data: list[dict[str, float]], type, value):
     plt.legend()
 
     # Show the plot
-    fig1.savefig(RESULTS_PATH + f"temporal_{type}_{str(value)}.png")
+    fig1.savefig(RESULTS_PATH + f"temporal_{experiment_name}_{str(value)}.png")
 
     fig, ax = plt.subplots(figsize=(1920 / 108, 1080 / 108), dpi=108)
     plt.xlabel("Tiempo (días)")
@@ -207,11 +248,13 @@ def cumulative_graphs(data: list[dict[str, float]], type, value):
     plt.xlim(0, days[-1])
     plt.ylim(0, 1000)
     # fig.show()
-    fig.savefig(RESULTS_PATH + f"cumulative_graph_{type}_{str(value)}.png")
+    fig.savefig(RESULTS_PATH + f"cumulative_graph_{experiment_name}_{str(value)}.png")
 
 
 def graph_total_vs_variable(
-    data: dict[float, list[dict[str, float]]], xlabel: str, xstep: float
+    data: dict[float, dict[str, float | list[dict[str, float]]]],
+    xlabel: str,
+    xstep: float,
 ):
     fig1 = plt.figure(figsize=(1920 / 108, 1080 / 108), dpi=108)
     plt.rcParams["font.family"] = "serif"
@@ -226,16 +269,20 @@ def graph_total_vs_variable(
     dead_stds = []
 
     for rate, outputs in data.items():
+        aggregates_list = outputs["aggregates"]
+        if type(aggregates_list) is not list:
+            continue
+
         variable_input_list.append(rate)
 
-        susceptible_medians.append(outputs[-1]["susceptibles"])
-        susceptible_stds.append(outputs[-1]["susceptibles_std"])
+        susceptible_medians.append(aggregates_list[-1]["susceptibles"])
+        susceptible_stds.append(aggregates_list[-1]["susceptibles_std"])
 
-        # recovered_medians.append(outputs[-1]["recovered"])
-        # recovered_stds.append(outputs[-1]["recovered_std"])
+        # recovered_medians.append(aggregates_list[-1]["recovered"])
+        # recovered_stds.append(aggregates_list[-1]["recovered_std"])
 
-        dead_medians.append(outputs[-1]["dead"])
-        dead_stds.append(outputs[-1]["dead_std"])
+        dead_medians.append(aggregates_list[-1]["dead"])
+        dead_stds.append(aggregates_list[-1]["dead_std"])
 
     plt.errorbar(
         variable_input_list,
