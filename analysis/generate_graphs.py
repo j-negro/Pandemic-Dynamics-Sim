@@ -220,10 +220,10 @@ def cumulative_graphs(data: float | list[dict[str, float]], experiment_name, val
         recovered.append(inf_status["recovered"])
         dead.append(inf_status["dead"])
 
-    plt.plot(susceptibles, "o-", label="Susceptibles", color="blue")
-    plt.plot(infected, "o-", label="Infectados", color="red")
-    plt.plot(recovered, "o-", label="Recuperados", color="green")
-    plt.plot(dead, "o-", label="Fallecidos", color="black")
+    plt.plot(days, susceptibles, "o-", label="Susceptibles", color="blue")
+    plt.plot(days, infected, "o-", label="Infectados", color="red")
+    plt.plot(days, recovered, "o-", label="Recuperados", color="green")
+    plt.plot(days, dead, "o-", label="Fallecidos", color="black")
 
     # Customize the plot
     plt.xlabel("Tiempo (días)")
@@ -233,12 +233,14 @@ def cumulative_graphs(data: float | list[dict[str, float]], experiment_name, val
     # Show the plot
     plt.grid()
     fig1.savefig(RESULTS_PATH + f"temporal_{experiment_name}_{str(value)}.png")
+    plt.clf()
 
     fig, ax = plt.subplots(figsize=(1280 / 108, 720 / 108), dpi=108)
     plt.rcParams["font.family"] = "serif"
     plt.rcParams.update({"font.size": 16})
     plt.xlabel("Tiempo (días)")
     plt.ylabel("Cantidad de individuos")
+
     ax.stackplot(
         days,
         infected,
