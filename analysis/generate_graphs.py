@@ -158,13 +158,17 @@ def plot(data: dict[str, dict[float, dict[str, float | list[dict[str, float]]]]]
     cumulative_graphs(data["mortality"][0.01]["aggregates"], "mortality", 0.01)
     cumulative_graphs(data["mortality"][0.1]["aggregates"], "mortality", 0.1)
 
-    graph_total_vs_variable(data["mortality"], "Tasa de Mortalidad", 0.01)
-    graph_total_vs_variable(data["transmission"], "Tasa de Infección", 0.04)
+    graph_total_vs_variable(data["mortality"], "Probabilidad de Defunción", 0.01)
+    graph_total_vs_variable(data["transmission"], "Probabilidad de Infección", 0.04)
     graph_total_vs_variable(data["period"], "Período de Contagio (días)", 1)
 
     graph_lenght_vs_variable(data["period"], "period", "Período de Contagio (días)")
-    graph_lenght_vs_variable(data["transmission"], "transmission", "Tasa de Infección")
-    graph_lenght_vs_variable(data["mortality"], "mortality", "Tasa de Mortalidad")
+    graph_lenght_vs_variable(
+        data["transmission"], "transmission", "Probabilidad de Infección"
+    )
+    graph_lenght_vs_variable(
+        data["mortality"], "mortality", "Probabilidad de Defunción"
+    )
 
 
 def graph_lenght_vs_variable(
